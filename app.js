@@ -2,17 +2,6 @@ import scanner from 'portscanner';
 import {Observable} from 'rxjs';
 import net from 'net';
 
-/*
-    Simple nodeJS application to interact with the Solax Hybrid inverter.
-
-    The application does the following
-    * Scans for the inverter on the LAN
-    * Connect to the socket server
-    * Decodes uploadSensor packets sent to the debugging port
-    * Maps sensor payload to JSON object
-    * Prints json object to stdout
- */
-
 const range = 254;
 const port = 9003;
 
