@@ -1,6 +1,7 @@
 import scanner from 'portscanner';
 import {Observable} from 'rxjs';
 import net from 'net';
+import PouchDB from 'pouchdb';
 
 const range = 254;
 const port = 9003;
@@ -92,50 +93,64 @@ const convertUploadSensorMessage = (uploadSensorArray) => {
     return valuesAsObject;
 };
 
-console.log("Scanning network");
 
-Observable
-    .range(1, range)
-    .map(num => `192.168.1.${num}`)
-    .mergeMap(ip => {
+const main = (db) => {
 
-        const scan = scanner
-            .checkPortStatus(port, ip);
+    console.log("Scanning network");
 
-        return Observable
-            .fromPromise(scan)
-            .filter((state) => state === 'open')
-            .map(() => ip);
+    Observable
+        .range(1, range)
+        .map(num => `192.168.1.${num}`)
+        .mergeMap(ip => {
 
-    })
-    .take(1)
-    .do(host => console.log(`Found Inverter: ${host}. Opening connection`))
-    .mergeMap(host => {
+            const scan = scanner
+                .checkPortStatus(port, ip);
 
-        const socket = net.createConnection(port, host);
-        socket.setEncoding('utf8');
+            return Observable
+                .fromPromise(scan)
+                .filter((state) => state === 'open')
+                .map(() => ip);
 
-        return Observable
-            .fromEvent(socket, 'data')
-            .do(data => {
+        })
+        .take(1)
+        .do(host => console.log(`Found Inverter: ${host}. Opening connection`))
+        .mergeMap(host => {
 
-                console.log('--Data Received----------');
-                console.log(encodeURI(data));
-                console.log('--------------------------');
+            const socket = net.createConnection(port, host);
+            socket.setEncoding('utf8');
 
-            })
-            .map(decodeJsonPayloadFromInverter)
-            .filter(jsonMessagesFromInverter => jsonMessagesFromInverter.length === 1)
-            .map(jsonMessageFromInverter => convertUploadSensorMessage(jsonMessageFromInverter[0]))
-            .do(valuesAsObject => console.log(JSON.stringify(valuesAsObject)))
-            .takeUntil(Observable.fromEvent(socket, 'close'));
+            return Observable
+                .fromEvent(socket, 'data')
+                .do(data => {
 
-    })
-    .subscribe((inverterStatus) => {
+                    console.log('--Data Received----------');
+                    console.log(encodeURI(data));
+                    console.log('--------------------------');
 
-        // Do something to inverter status
+                })
+                .map(decodeJsonPayloadFromInverter)
+                .filter(jsonMessagesFromInverter => jsonMessagesFromInverter.length === 1)
+                .map(jsonMessageFromInverter => convertUploadSensorMessage(jsonMessageFromInverter[0]))
+                .do(valuesAsObject => console.log(JSON.stringify(valuesAsObject)))
+                .takeUntil(Observable.fromEvent(socket, 'close'));
 
-    });
+        })
+        .subscribe((inverterStatus) => {
+
+            const _id = new Date().getTime().toString();
+            db.put({inverterStatus, _id})
+                .catch(console.error)
+
+        });
+};
+
+
+const db = new PouchDB('./readings.db');
+
+main(db);
+
+
+
 
 
 
