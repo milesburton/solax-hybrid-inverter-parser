@@ -27,7 +27,7 @@ const decodeJsonPayloadFromInverter = (buffer) => {
         .filter(l => !!l) // remove empty lines
         .slice(-1) // The JSON message is on the last line
         .map(i => i.split(',').map(i => i === '' ? 0 : i).join(',')) // Fix broken JSON by replacing empty array elements with a 0
-        .map((j) => {
+        .map(j => {
             try {
                 return JSON.parse(j);
             } catch (e) {
@@ -97,7 +97,7 @@ console.log("Scanning network");
 Observable
     .range(1, range)
     .map((num) => `192.168.1.${num}`)
-    .mergeMap((ip) => {
+    .mergeMap(ip => {
 
         const scan = scanner
             .checkPortStatus(port, ip);
@@ -110,7 +110,7 @@ Observable
     })
     .take(1)
     .do(host => console.log(`Found Inverter: ${host}. Opening connection`))
-    .mergeMap((host) => {
+    .mergeMap(host => {
 
         const socket = net.createConnection(port, host);
         socket.setEncoding('utf8');
