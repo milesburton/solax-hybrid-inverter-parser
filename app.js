@@ -96,7 +96,7 @@ console.log("Scanning network");
 
 Observable
     .range(1, range)
-    .map((num) => `192.168.1.${num}`)
+    .map(num => `192.168.1.${num}`)
     .mergeMap(ip => {
 
         const scan = scanner
