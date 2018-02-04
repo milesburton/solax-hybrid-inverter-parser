@@ -1,0 +1,1 @@
+# solax-hybrid-inverter-parser
