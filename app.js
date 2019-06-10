@@ -1,11 +1,13 @@
 import scanner from 'portscanner';
 import {Observable} from 'rxjs';
 import net from 'net';
-import PouchDB from 'pouchdb';
+const express = require('express');
+const app = express();
+const webport = 3111;
 
 const range = 254;
 const port = 9003;
-
+let latestData = {};
 
 /*
 
@@ -94,7 +96,7 @@ const convertUploadSensorMessage = (uploadSensorArray) => {
 };
 
 
-const main = (db) => {
+const main = () => {
 
     console.log("Scanning network");
 
@@ -136,18 +138,23 @@ const main = (db) => {
 
         })
         .subscribe((inverterStatus) => {
-
-            const _id = new Date().getTime().toString();
-            db.put({inverterStatus, _id})
-                .catch(console.error)
-
+		latestData = inverterStatus;
         });
 };
 
+app.use('/', (request, response) => {
+  response.json(latestData);
+})
 
-const db = new PouchDB('./readings.db');
+app.listen(webport, (err) => {
+  if (err) {
+    return console.log('something bad happened', err)
+  }
 
-main(db);
+  console.log(`server is listening on ${webport}`)
+})
+
+main();
 
 
 

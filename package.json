@@ -3,14 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon app.js --exec node ./node_modules/babel-cli/bin/babel app.js | node"
+    "start": "./node_modules/.bin/nodemon --exec node ./node_modules/.bin/babel app.js | node"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "express": "^4.17.1",
+    "leveldown": "^5.1.0",
     "nodemon": "^1.14.12",
     "portscanner": "^2.1.1",
-    "pouchdb": "^6.4.3",
     "rxjs": "^5.5.6",
     "telnet-client": "^0.15.5"
   }
