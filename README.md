@@ -9,4 +9,4 @@
     * Maps sensor payload to JSON object
     * Prints json object to stdout
     
-Build on RXJS, Socket library 
+Built on RXJS, Socket library 
